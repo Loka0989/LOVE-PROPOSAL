@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Will You Be Mine? 💖</title>
+  <meta name="description" content="A cinematic interactive romantic proposal experience." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --text-xs:   clamp(0.75rem,  0.7rem  + 0.25vw, 0.875rem);
+      --text-sm:   clamp(0.875rem, 0.8rem  + 0.35vw, 1rem);
+      --text-base: clamp(1rem,     0.95rem + 0.25vw, 1.125rem);
+      --text-lg:   clamp(1.125rem, 1rem    + 0.75vw, 1.5rem);
+      --text-xl:   clamp(1.5rem,   1.2rem  + 1.25vw, 2.25rem);
+      --text-2xl:  clamp(2rem,     1.2rem  + 2.5vw,  3.5rem);
+      --text-3xl:  clamp(2.5rem,   1rem    + 4vw,    5rem);
+
+      --space-1: 0.25rem; --space-2: 0.5rem;  --space-3: 0.75rem; --space-4: 1rem;
+      --space-5: 1.25rem; --space-6: 1.5rem;  --space-8: 2rem;    --space-10: 2.5rem;
+      --space-12: 3rem;   --space-16: 4rem;
+
+      --radius-sm: 0.5rem; --radius-md: 0.9rem; --radius-lg: 1.4rem;
+      --radius-xl: 2rem;   --radius-full: 9999px;
+
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-body:    'Manrope', system-ui, sans-serif;
+
+      /* ── Pink palette ── */
+      --bg-1:  #fff0f5;
+      --bg-2:  #ffc2d6;
+      --bg-3:  #ff80aa;
+      --bg-4:  #d6006e;
+
+      --surface:        rgba(255, 245, 250, 0.18);
+      --surface-strong: rgba(255, 245, 250, 0.28);
+      --border:         rgba(255, 255, 255, 0.40);
+
+      --text:       #fff0f7;
+      --text-muted: rgba(255, 228, 240, 0.82);
+
+      --accent:   #ff0080;
+      --accent-2: #ff66aa;
+      --gold:     #f9d4ea;
+
+      --shadow-lg: 0 24px 80px rgba(140, 0, 70, 0.38);
+      --shadow-md: 0 14px 40px rgba(140, 0, 70, 0.26);
+
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --card-width: min(92vw, 760px);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      overflow: hidden;
+      font-family: var(--font-body);
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at 22% 18%, rgba(255,255,255,0.40) 0%, transparent 22%),
+        radial-gradient(ellipse at 80% 5%,  rgba(255,192,216,0.30) 0%, transparent 28%),
+        radial-gradient(ellipse at 50% 95%, rgba(255,0,128,0.28)   0%, transparent 30%),
+        linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 26%, var(--bg-3) 58%, var(--bg-4) 100%);
+      position: relative;
+      display: grid;
+      place-items: center;
+    }
+
+    /* subtle dot grid */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,0.5) 0.8px, transparent 0.8px);
+      background-size: 22px 22px;
+      opacity: 0.18;
+      mix-blend-mode: soft-light;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ambient glow */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(255,255,255,0.18), transparent 18%),
+        radial-gradient(circle at 82% 18%, rgba(255,180,210,0.20), transparent 22%),
+        radial-gradient(circle at 50% 65%, rgba(255,220,235,0.10), transparent 28%);
+      filter: blur(20px);
+      animation: driftGlow 16s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Skip link ── */
+    .skip-link {
+      position: absolute; left: -999px; top: 0;
+    }
+    .skip-link:focus {
+      left: var(--space-4); top: var(--space-4); z-index: 20;
+      padding: var(--space-3) var(--space-4);
+      background: #fff; color: #000;
+      border-radius: var(--radius-full);
+    }
+
+    /* ── Scene layers ── */
+    .scene {
+      position: fixed; inset: 0;
+      overflow: hidden; pointer-events: none; z-index: 0;
+    }
+    .hearts-layer, .sparkle-layer, .confetti-layer, .burst-layer, .cursor-hearts {
+      position: absolute; inset: 0;
+    }
+    .heart, .sparkle, .confetti, .burst-heart, .cursor-heart {
+      position: absolute;
+      will-change: transform, opacity;
+      user-select: none; pointer-events: none;
+    }
+
+    .heart {
+      color: rgba(255, 220, 235, 0.95);
+      text-shadow: 0 0 18px rgba(255, 80, 160, 0.8);
+      animation: floatHeart linear forwards;
+    }
+    .sparkle {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,150,200,0.9) 35%, rgba(255,255,255,0) 72%);
+      filter: blur(0.2px);
+      animation: sparkleFloat linear forwards;
+    }
+    .cursor-heart {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      animation: cursorTrail 1s ease-out forwards;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      position: fixed; top: var(--space-4); right: var(--space-4);
+      display: flex; align-items: center; gap: var(--space-3); z-index: 5;
+    }
+
+    .control-btn {
+      min-width: 44px; min-height: 44px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(255,255,255,0.32);
+      background: rgba(255,255,255,0.16);
+      backdrop-filter: blur(18px);
+      color: var(--text);
+      display: inline-flex; align-items: center; justify-content: center;
+      box-shadow: var(--shadow-md);
+      cursor: pointer;
+      transition: transform 220ms var(--ease), background 220ms var(--ease), box-shadow 220ms var(--ease);
+    }
+    .control-btn:hover, .control-btn:focus-visible {
+      transform: translateY(-2px) scale(1.06);
+      background: rgba(255,255,255,0.26);
+      box-shadow: 0 18px 40px rgba(140, 0, 70, 0.28);
+      outline: none;
+    }
+
+    /* ── Card shell ── */
+    .card-shell {
+      position: relative;
+      width: var(--card-width);
+      perspective: 1400px;
+      z-index: 2;
+    }
+
+    .orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(12px); opacity: 0.70; z-index: -1;
+      animation: floatOrb 12s ease-in-out infinite;
+    }
+    .orb.one { width: 200px; height: 200px; background: rgba(255, 200, 225, 0.35); top: -45px; left: -40px; }
+    .orb.two { width: 240px; height: 240px; background: rgba(255, 170, 210, 0.25); right: -65px; bottom: -75px; animation-delay: -6s; }
+
+    /* ── Proposal Card ── */
+    .proposal-card {
+      position: relative; overflow: hidden;
+      border-radius: 32px;
+      background: linear-gradient(160deg, rgba(255,255,255,0.26), rgba(255,200,225,0.10));
+      border: 1px solid var(--border);
+      backdrop-filter: blur(28px) saturate(150%);
+      -webkit-backdrop-filter: blur(28px) saturate(150%);
+      box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.36);
+      padding: clamp(1.6rem, 4vw, 3rem);
+      transform-style: preserve-3d;
+      transition: transform 350ms var(--ease), box-shadow 350ms var(--ease);
+      isolation: isolate;
+    }
+
+    /* inner gloss */
+    .proposal-card::before {
+      content: "";
+      position: absolute; inset: 1px;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255,255,255,0.26), rgba(255,255,255,0.03) 35%, rgba(255,255,255,0.14));
+      z-index: -1;
+    }
+
+    /* sheen sweep */
+    .proposal-card::after {
+      content: "";
+      position: absolute;
+      width: 40%; height: 180%; top: -35%; left: -55%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.36), transparent);
+      transform: rotate(18deg); opacity: 0.55;
+      animation: sheen 8s ease-in-out infinite;
+    }
+
+    /* ── Brand ── */
+    .brand {
+      display: inline-flex; align-items: center; gap: var(--space-3);
+      margin-bottom: var(--space-8);
+      color: var(--text-muted);
+      letter-spacing: 0.18em; text-transform: uppercase;
+      font-size: var(--text-xs);
+    }
+    .brand svg { width: 36px; height: 36px; }
+
+    /* ── Eyebrow ── */
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-full);
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.28);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.22);
+      color: var(--text-muted);
+      font-size: var(--text-xs); letter-spacing: 0.08em; text-transform: uppercase;
+    }
+
+    /* ── Content grid ── */
+    .content {
+      display: grid;
+      gap: clamp(var(--space-5), 2vw, var(--space-8));
+      justify-items: center; text-align: center;
+    }
+
+    /* ── Typed question ── */
+    .question {
+      font-family: var(--font-display);
+      font-size: clamp(2.6rem, 7vw, 5.4rem);
+      line-height: 0.95; letter-spacing: -0.04em;
+      margin: 0; max-width: 12ch;
+      text-shadow: 0 8px 32px rgba(140, 0, 70, 0.30);
+    }
+    .typed-line {
+      min-height: 1.2em; display: inline-block; position: relative;
+    }
+    .typed-line::after {
+      content: "";
+      display: inline-block; width: 2px; height: 0.9em; margin-left: 6px;
+      background: rgba(255,255,255,0.95);
+      animation: caretBlink 1s steps(1) infinite; vertical-align: middle;
+    }
+    .proposal-card.done-typing .typed-line::after { opacity: 0; }
+
+    /* ── Subcopy ── */
+    .subcopy {
+      margin: 0; color: var(--text-muted);
+      max-width: 44ch; font-size: var(--text-base);
+      line-height: 1.7;
+    }
+
+    /* ── Heartbeat ── */
+    .heartbeat-wrap {
+      position: relative; display: grid; place-items: center;
+      margin: var(--space-2) 0;
+    }
+    .pulse-ring, .heart-core { grid-area: 1 / 1; }
+    .pulse-ring {
+      width: 120px; aspect-ratio: 1; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.28);
+      box-shadow: 0 0 44px rgba(255, 0, 128, 0.30);
+      animation: pulseRing 1.8s ease-out infinite;
+    }
+    .heart-core {
+      width: 80px; height: 80px;
+      display: grid; place-items: center;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.30), rgba(255,200,220,0.12));
+      border: 1px solid rgba(255,255,255,0.28);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.24), 0 18px 40px rgba(140, 0, 70, 0.28);
+      animation: heartbeat 1.2s infinite;
+    }
+    .heart-core span {
+      font-size: 2.4rem;
+      filter: drop-shadow(0 0 14px rgba(255, 0, 128, 0.65));
+    }
+
+    /* ── Anticipation bar ── */
+    .anticipation {
+      width: min(340px, 70vw); display: grid; gap: var(--space-2);
+    }
+    .anticipation label {
+      font-size: var(--text-xs); letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .bar {
+      height: 10px; border-radius: var(--radius-full);
+      background: rgba(255,255,255,0.14); overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+    .bar > span {
+      display: block; height: 100%; width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, rgba(255,255,255,0.75), var(--accent), var(--gold));
+      box-shadow: 0 0 22px rgba(255, 0, 128, 0.55);
+      transition: width 180ms linear;
+    }
+
+    /* ── Action area ── */
+    .actions {
+      position: relative;
+      width: min(420px, 100%);
+      min-height: 130px;
+      margin-top: var(--space-4);
+    }
+
+    /* ── YES button ── */
+    .yes-btn {
+      position: absolute;
+      left: 0; top: 0;
+      width: min(220px, 58%);
+      min-height: 58px;
+      border-radius: var(--radius-full);
+      font-weight: 800; font-size: 1rem;
+      letter-spacing: 0.04em;
+      color: white;
+      background: linear-gradient(135deg, #ff60a0, #ff0077 55%, #ff80b5 100%);
+      box-shadow: 0 20px 48px rgba(255, 0, 120, 0.40), inset 0 1px 0 rgba(255,255,255,0.40);
+      border: 1px solid rgba(255,255,255,0.32);
+      overflow: hidden; cursor: pointer;
+      transition: transform 240ms var(--ease), box-shadow 240ms var(--ease), opacity 240ms var(--ease);
+      touch-action: manipulation;
+    }
+    .yes-btn::before {
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(120deg, transparent 10%, rgba(255,255,255,0.42), transparent 55%);
+      transform: translateX(-130%);
+      transition: transform 700ms var(--ease);
+    }
+    .yes-btn:hover::before, .yes-btn:focus-visible::before { transform: translateX(130%); }
+    .yes-btn:hover, .yes-btn:focus-visible {
+      transform: translateY(-4px) scale(1.04);
+      box-shadow: 0 28px 58px rgba(255, 0, 128, 0.46), 0 0 34px rgba(255, 120, 180, 0.38);
+      outline: none;
+    }
+    .yes-btn:active { transform: scale(0.985); }
+
+    /* ── NO button ── */
+    .no-btn {
+      /* FIX: left:0 as anchor; JS applies translate() from here — was right:0 which sent it off-screen */
+      position: absolute;
+      left: 0; top: 0;
+      width: 120px; min-height: 58px;
+      border-radius: var(--radius-full);
+      font-weight: 800; font-size: 1rem;
+      letter-spacing: 0.04em;
+      color: rgba(255,255,255,0.92);
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.22);
+      backdrop-filter: blur(18px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.20);
+      cursor: pointer;
+      z-index: 2;
+      transition: transform 240ms var(--ease), background 240ms var(--ease), opacity 240ms var(--ease);
+      touch-action: manipulation;
+    }
+    .no-btn:hover, .no-btn:focus-visible {
+      background: rgba(255,255,255,0.20);
+      outline: none;
+    }
+    .no-btn:active { transform: scale(0.96); }
+
+    /* ── Success message ── */
+    .message {
+      min-height: 2.2rem;
+      font-size: var(--text-lg);
+      font-weight: 600; color: #fff0f7;
+      opacity: 0; transform: translateY(10px);
+      transition: opacity 480ms var(--ease), transform 480ms var(--ease);
+      text-shadow: 0 10px 24px rgba(140, 0, 70, 0.28);
+    }
+    .message.show { opacity: 1; transform: translateY(0); }
+
+    /* ── Footer note ── */
+    .footer-note {
+      font-size: var(--text-sm);
+      color: rgba(255, 228, 240, 0.75);
+    }
+
+    /* ── Modal ── */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(80, 0, 40, 0.55);
+      backdrop-filter: blur(18px);
+      display: grid; place-items: center;
+      padding: var(--space-4);
+      opacity: 0; visibility: hidden;
+      transition: opacity 320ms var(--ease), visibility 320ms var(--ease);
+      z-index: 12;
+    }
+    .modal-backdrop.open { opacity: 1; visibility: visible; }
+
+    .modal {
+      width: min(92vw, 520px);
+      border-radius: 32px;
+      background: linear-gradient(160deg, rgba(255,255,255,0.28), rgba(255,150,200,0.10));
+      border: 1px solid rgba(255,255,255,0.30);
+      padding: clamp(1.5rem, 4vw, 2.6rem);
+      box-shadow: 0 32px 90px rgba(140, 0, 70, 0.45);
+      transform: scale(0.80) translateY(20px);
+      transition: transform 420ms var(--ease);
+      position: relative; overflow: hidden; text-align: center;
+    }
+    .modal-backdrop.open .modal { transform: scale(1) translateY(0); }
+
+    .modal h2 {
+      margin: 0 0 var(--space-3);
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 6vw, 3.6rem);
+      line-height: 0.95;
+      text-shadow: 0 6px 24px rgba(140, 0, 70, 0.28);
+    }
+    .modal p {
+      margin: 0 0 var(--space-6);
+      color: var(--text-muted);
+      font-size: var(--text-base);
+      line-height: 1.75;
+    }
+    .modal .close-modal {
+      min-height: 52px; padding: 0 var(--space-8);
+      border-radius: var(--radius-full);
+      font-family: var(--font-body); font-weight: 700;
+      font-size: 0.95rem; letter-spacing: 0.04em;
+      color: white;
+      background: linear-gradient(135deg, #ff60a0, #ff0077 55%, #ff80b5 100%);
+      border: 1px solid rgba(255,255,255,0.30);
+      box-shadow: 0 16px 40px rgba(255, 0, 100, 0.38), inset 0 1px 0 rgba(255,255,255,0.36);
+      cursor: pointer;
+      transition: transform 220ms var(--ease), box-shadow 220ms var(--ease);
+    }
+    .modal .close-modal:hover, .modal .close-modal:focus-visible {
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 0 22px 48px rgba(255, 0, 100, 0.46);
+      outline: none;
+    }
+    .modal .mini-heartline {
+      display: flex; justify-content: center; gap: var(--space-3);
+      font-size: 1.6rem; margin-bottom: var(--space-5);
+      filter: drop-shadow(0 0 12px rgba(255, 0, 128, 0.60));
+    }
+
+    /* ── Ripple ── */
+    .ripple {
+      position: absolute; border-radius: 50%;
+      background: rgba(255,255,255,0.38);
+      transform: scale(0); animation: ripple 700ms ease-out forwards;
+      pointer-events: none;
+    }
+
+    .proposal-card.celebrating {
+      animation: celebratoryGlow 2.6s ease-in-out infinite alternate;
+    }
+    .proposal-card.celebrating .pulse-ring { animation-duration: 1.0s; }
+    .proposal-card.celebrating .heart-core { animation-duration: 0.75s; }
+
+    /* ── Keyframes ── */
+    @keyframes driftGlow {
+      from { transform: translate3d(0, 0, 0) scale(1); }
+      to   { transform: translate3d(2%, -2%, 0) scale(1.09); }
+    }
+    @keyframes floatHeart {
+      0%   { transform: translate3d(0, 0, 0) scale(0.7) rotate(0deg); opacity: 0; }
+      10%  { opacity: 1; }
+      100% { transform: translate3d(var(--drift-x), -110vh, 0) scale(1.2) rotate(20deg); opacity: 0; }
+    }
+    @keyframes sparkleFloat {
+      0%   { transform: translate3d(0, 0, 0) scale(0.3); opacity: 0; }
+      12%  { opacity: 1; }
+      100% { transform: translate3d(var(--drift-x), -115vh, 0) scale(1.3); opacity: 0; }
+    }
+    @keyframes cursorTrail {
+      from { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      to   { transform: translate(calc(-50% + var(--tx)), calc(-50% - 48px)) scale(0.2); opacity: 0; }
+    }
+    @keyframes floatOrb {
+      0%,100% { transform: translate3d(0, 0, 0) scale(1); }
+      50%     { transform: translate3d(14px, -18px, 0) scale(1.09); }
+    }
+    @keyframes sheen {
+      0%, 100% { transform: translateX(0) rotate(18deg); opacity: 0; }
+      18%      { opacity: 0; }
+      38%      { transform: translateX(235%) rotate(18deg); opacity: 0.70; }
+      42%      { opacity: 0; }
+    }
+    @keyframes pulseRing {
+      0%   { transform: scale(0.70); opacity: 0.9; }
+      100% { transform: scale(1.28); opacity: 0; }
+    }
+    @keyframes heartbeat {
+      0%,100% { transform: scale(1); }
+      14%     { transform: scale(1.14); }
+      28%     { transform: scale(0.97); }
+      42%     { transform: scale(1.09); }
+      70%     { transform: scale(1); }
+    }
+    @keyframes caretBlink {
+      0%, 50%      { opacity: 1; }
+      50.01%, 100% { opacity: 0; }
+    }
+    @keyframes ripple {
+      to { transform: scale(8); opacity: 0; }
+    }
+    @keyframes confettiFly {
+      0%   { transform: translate3d(0,0,0) rotate(0deg) scale(1); opacity: 1; }
+      100% { transform: translate3d(var(--x),var(--y),0) rotate(var(--r)) scale(0.7); opacity: 0; }
+    }
+    @keyframes burstFly {
+      0%   { transform: translate(-50%,-50%) scale(0.8); opacity: 1; }
+      100% { transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1.4); opacity: 0; }
+    }
+    @keyframes celebratoryGlow {
+      from { box-shadow: 0 24px 80px rgba(140,0,70,0.38), 0 0  0   rgba(255,140,195,0.10); }
+      to   { box-shadow: 0 32px 100px rgba(140,0,70,0.50), 0 0 48px rgba(255,160,210,0.22); }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      body { overflow-y: auto; }
+      .app { align-items: start; padding-top: 5.5rem; }
+      .proposal-card { border-radius: 28px; }
+      .question { max-width: 13ch; }
+      .actions {
+        min-height: 160px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-4);
+      }
+      .yes-btn {
+        position: relative;
+        left: auto; top: auto;
+        width: min(100%, 260px);
+      }
+      .no-btn {
+        position: relative;
+        left: auto !important; top: auto !important;
+        transform: none !important; /* static on mobile so it can't escape viewport */
+        width: 120px;
+      }
+    }
+
+    @media (hover: none) and (max-width: 640px) {
+      /* On touch-only phones, let No button jump on touchstart (handled in JS) */
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      body { scroll-behavior: auto; }
+    }
+
+    /* ── App wrapper ── */
+    .app {
+      position: relative; z-index: 2;
+      width: 100%; min-height: 100dvh;
+      display: grid; place-items: center;
+      padding: clamp(var(--space-4), 3vw, var(--space-10));
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Ambient scene layers -->
+  <div class="scene" aria-hidden="true">
+    <div class="hearts-layer"></div>
+    <div class="sparkle-layer"></div>
+    <div class="confetti-layer"></div>
+    <div class="burst-layer"></div>
+    <div class="cursor-hearts"></div>
+  </div>
+
+  <!-- Controls -->
+  <div class="topbar">
+    <button class="control-btn" id="musicToggle" aria-label="Play romantic background music" title="Toggle music">
+      <span aria-hidden="true">♫</span>
+    </button>
+  </div>
+
+  <main class="app" id="main">
+    <section class="card-shell" aria-labelledby="proposal-title">
+      <div class="orb one"></div>
+      <div class="orb two"></div>
+      <article class="proposal-card" id="tiltCard">
+
+        <!-- Brand logo -->
+        <div class="brand" aria-label="Eternal Promise">
+          <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+            <path d="M32 56C25 50.5 8 39 8 23C8 14.7 14.7 8 23 8C27.8 8 32 10.5 32 10.5C32 10.5 36.2 8 41 8C49.3 8 56 14.7 56 23C56 39 39 50.5 32 56Z"
+                  stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M18 28H25L29 20L35 38L40 28H50"
+                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Eternal Promise
+        </div>
+
+        <div class="content">
+          <span class="eyebrow">✨ A little moment from my heart ✨</span>
+
+          <h1 class="question" id="proposal-title">
+            <span class="typed-line" id="typedText" aria-live="polite"></span>
+          </h1>
+
+          <div class="heartbeat-wrap" aria-hidden="true">
+            <div class="pulse-ring"></div>
+            <div class="heart-core"><span>💘</span></div>
+          </div>
+
+          <p class="subcopy">
+            Every sparkle, every floating heart, and every shimmer on this page
+            carries one single wish — to ask you something that changes everything.
+          </p>
+
+          <div class="anticipation" aria-hidden="true">
+            <label>Building up courage…</label>
+            <div class="bar"><span id="anticipationBar"></span></div>
+          </div>
+
+          <!-- ── Action buttons ── -->
+          <div class="actions" id="actionArea">
+            <button class="yes-btn" id="yesBtn">YES, forever 💖</button>
+            <button class="no-btn"  id="noBtn" aria-label="No (if you dare)">Maybe not…</button>
+          </div>
+
+          <div class="message" id="successMessage" role="status" aria-live="polite">
+            You just made me the happiest person alive 💕
+          </div>
+
+          <p class="footer-note">Made with butterflies, blush gradients, and a whole lot of love 🌸</p>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <!-- Celebration modal -->
+  <div class="modal-backdrop" id="loveModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal">
+      <div class="mini-heartline" aria-hidden="true">
+        <span>💖</span><span>✨</span><span>💞</span><span>🌸</span><span>💗</span>
+      </div>
+      <h2 id="modalTitle">Forever starts now 💍</h2>
+      <p>
+        Thank you for saying yes. You are my favourite dream, my calm in every storm,
+        and the reason ordinary moments feel absolutely magical.
+      </p>
+      <button class="close-modal" id="closeModal">Hold me close 🌹</button>
+    </div>
+  </div>
+
+  <script>
+    /* ── DOM refs ── */
+    const typedText       = document.getElementById('typedText');
+    const anticipationBar = document.getElementById('anticipationBar');
+    const proposalCard    = document.querySelector('.proposal-card');
+    const yesBtn          = document.getElementById('yesBtn');
+    const noBtn           = document.getElementById('noBtn');
+    const actionArea      = document.getElementById('actionArea');
+    const successMessage  = document.getElementById('successMessage');
+    const modal           = document.getElementById('loveModal');
+    const closeModalBtn   = document.getElementById('closeModal');
+    const tiltCard        = document.getElementById('tiltCard');
+    const heartsLayer     = document.querySelector('.hearts-layer');
+    const sparkleLayer    = document.querySelector('.sparkle-layer');
+    const confettiLayer   = document.querySelector('.confetti-layer');
+    const burstLayer      = document.querySelector('.burst-layer');
+    const cursorHearts    = document.querySelector('.cursor-hearts');
+    const musicToggle     = document.getElementById('musicToggle');
+
+    /* ── State ── */
+    let noButtonPos          = { x: 0, y: 0 };
+    let celebrationTriggered = false;
+    let currentFocusBeforeModal = null;
+    const isMobile = () => window.innerWidth <= 640;
+
+    /* ── Typing ── */
+    const question = 'Will you be mine forever? 💕';
+
+    function typeQuestion() {
+      let index = 0;
+      const total = question.length;
+      const interval = setInterval(() => {
+        typedText.textContent = question.slice(0, index + 1);
+        anticipationBar.style.width = `${((index + 1) / total) * 100}%`;
+        index += 1;
+        if (index >= total) {
+          clearInterval(interval);
+          proposalCard.classList.add('done-typing');
+        }
+      }, 80);
+    }
+
+    /* ── Floating hearts ── */
+    function createFloatingHeart() {
+      const el = document.createElement('span');
+      el.className = 'heart';
+      el.textContent = ['❤','💖','💗','💕','🌸'][Math.floor(Math.random() * 5)];
+      el.style.left   = `${Math.random() * 100}%`;
+      el.style.bottom = '-10vh';
+      el.style.fontSize = `${0.9 + Math.random() * 1.3}rem`;
+      el.style.setProperty('--drift-x', `${-80 + Math.random() * 160}px`);
+      el.style.animationDuration = `${10 + Math.random() * 10}s`;
+      heartsLayer.appendChild(el);
+      setTimeout(() => el.remove(), 21000);
+    }
+
+    function createSparkle() {
+      const el = document.createElement('span');
+      el.className = 'sparkle';
+      el.style.left   = `${Math.random() * 100}%`;
+      el.style.bottom = '-5vh';
+      el.style.setProperty('--drift-x', `${-60 + Math.random() * 120}px`);
+      el.style.animationDuration = `${6 + Math.random() * 8}s`;
+      el.style.transform = `scale(${0.5 + Math.random()})`;
+      sparkleLayer.appendChild(el);
+      setTimeout(() => el.remove(), 15000);
+    }
+
+    function keepMagicAlive() {
+      setInterval(createFloatingHeart, 700);
+      setInterval(createSparkle, 360);
+      for (let i = 0; i < 14; i++) setTimeout(createFloatingHeart, i * 180);
+      for (let i = 0; i < 22; i++) setTimeout(createSparkle, i * 80);
+    }
+
+    /* ── No button: runs away on desktop, jumps on mobile ── */
+    function moveNoButton(force = false) {
+      if (celebrationTriggered) return;
+      if (isMobile()) return; /* on mobile CSS handles layout; no JS repositioning */
+
+      const areaRect = actionArea.getBoundingClientRect();
+      const btnRect  = noBtn.getBoundingClientRect();
+      const maxX = Math.max(0, areaRect.width  - btnRect.width);
+      const maxY = Math.max(0, areaRect.height - btnRect.height);
+
+      let nextX = Math.random() * maxX;
+      let nextY = Math.random() * maxY;
+
+      /* avoid landing exactly on previous spot */
+      if (!force) {
+        const dx = Math.abs(nextX - noButtonPos.x);
+        const dy = Math.abs(nextY - noButtonPos.y);
+        if (dx < 36 && dy < 26) nextX = (nextX + maxX / 2) % Math.max(maxX, 1);
+      }
+
+      noButtonPos = { x: nextX, y: nextY };
+      noBtn.style.transform = `translate(${nextX}px, ${nextY}px)`;
+    }
+
+    /* ── Ripple ── */
+    function createRipple(event, button) {
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      const rect = button.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      ripple.style.width  = ripple.style.height = `${size}px`;
+      ripple.style.left   = `${event.clientX - rect.left - size / 2}px`;
+      ripple.style.top    = `${event.clientY - rect.top  - size / 2}px`;
+      button.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 700);
+    }
+
+    /* ── Burst hearts ── */
+    function burstHearts(x, y) {
+      const total = 20;
+      for (let i = 0; i < total; i++) {
+        const heart = document.createElement('span');
+        heart.className = 'burst-heart';
+        heart.textContent = i % 2 === 0 ? '💖' : '✨';
+        heart.style.left     = `${x}px`;
+        heart.style.top      = `${y}px`;
+        const angle    = (Math.PI * 2 * i) / total;
+        const distance = 90 + Math.random() * 100;
+        heart.style.setProperty('--x', `${Math.cos(angle) * distance}px`);
+        heart.style.setProperty('--y', `${Math.sin(angle) * distance}px`);
+        heart.style.fontSize  = `${1 + Math.random() * 1.2}rem`;
+        heart.style.animation = `burstFly ${900 + Math.random() * 500}ms var(--ease) forwards`;
+        burstLayer.appendChild(heart);
+        setTimeout(() => heart.remove(), 1600);
+      }
+    }
+
+    /* ── Confetti explosion ── */
+    function confettiExplosion(x, y) {
+      const colors = ['#ffffff','#ffd6e8','#ff80aa','#ffb0cc','#ffcce0','#ff0080'];
+      for (let i = 0; i < 100; i++) {
+        const piece = document.createElement('span');
+        piece.className = 'confetti';
+        piece.style.left        = `${x}px`;
+        piece.style.top         = `${y}px`;
+        piece.style.width       = `${6  + Math.random() * 10}px`;
+        piece.style.height      = `${8  + Math.random() * 16}px`;
+        piece.style.background  = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.borderRadius = Math.random() > 0.5 ? '999px' : '2px';
+        piece.style.boxShadow   = '0 0 14px rgba(255,80,160,0.28)';
+        piece.style.setProperty('--x', `${-240 + Math.random() * 480}px`);
+        piece.style.setProperty('--y', `${-240 + Math.random() * 480}px`);
+        piece.style.setProperty('--r', `${-280 + Math.random() * 560}deg`);
+        piece.style.animation   = `confettiFly ${900 + Math.random() * 900}ms cubic-bezier(0.15,0.8,0.2,1) forwards`;
+        confettiLayer.appendChild(piece);
+        setTimeout(() => piece.remove(), 2200);
+      }
+    }
+
+    /* ── Modal ── */
+    function openModal() {
+      currentFocusBeforeModal = document.activeElement;
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      closeModalBtn.focus();
+    }
+    function closeLoveModal() {
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+      currentFocusBeforeModal && currentFocusBeforeModal.focus();
+    }
+
+    /* ── Celebrate ── */
+    function celebrate(event) {
+      if (celebrationTriggered) return;
+      celebrationTriggered = true;
+      const rect = yesBtn.getBoundingClientRect();
+      const x = rect.left + rect.width  / 2;
+      const y = rect.top  + rect.height / 2;
+      if (event) createRipple(event, yesBtn);
+      confettiExplosion(x, y);
+      burstHearts(x, y);
+      proposalCard.classList.add('celebrating');
+      successMessage.classList.add('show');
+      setTimeout(openModal, 550);
+      for (let i = 0; i < 28; i++) {
+        setTimeout(() => { createFloatingHeart(); createSparkle(); }, i * 90);
+      }
+      noBtn.style.opacity = '0.20';
+      noBtn.style.pointerEvents = 'none';
+    }
+
+    /* ── Cursor trail ── */
+    function createCursorHeart(x, y) {
+      const heart = document.createElement('span');
+      heart.className  = 'cursor-heart';
+      heart.textContent = Math.random() > 0.35 ? '❤' : '✨';
+      heart.style.left = `${x}px`;
+      heart.style.top  = `${y}px`;
+      heart.style.setProperty('--tx', `${-14 + Math.random() * 28}px`);
+      cursorHearts.appendChild(heart);
+      setTimeout(() => heart.remove(), 1000);
+    }
+
+    /* ── 3-D tilt ── */
+    function setupTilt() {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      tiltCard.addEventListener('pointermove', (e) => {
+        const rect = tiltCard.getBoundingClientRect();
+        const px = (e.clientX - rect.left) / rect.width;
+        const py = (e.clientY - rect.top)  / rect.height;
+        tiltCard.style.transform =
+          `rotateX(${(0.5 - py) * 10}deg) rotateY(${(px - 0.5) * 10}deg) translateY(-4px)`;
+      });
+      tiltCard.addEventListener('pointerleave', () => {
+        tiltCard.style.transform = 'rotateX(0) rotateY(0) translateY(0)';
+      });
+    }
+
+    /* ── Web-Audio ambient music ── */
+    function setupMusic() {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) {
+        musicToggle.disabled = true;
+        musicToggle.title = 'Audio not supported in this browser';
+        return;
+      }
+
+      const ctx = new AudioCtx();
+      const masterGain = ctx.createGain();
+      masterGain.gain.value = 0;
+      masterGain.connect(ctx.destination);
+
+      let oscA, oscB, tremolo, playing = false;
+
+      function startMusic() {
+        if (!oscA) {
+          oscA    = ctx.createOscillator();
+          oscB    = ctx.createOscillator();
+          tremolo = ctx.createOscillator();
+          const tremoloGain = ctx.createGain();
+          const filter      = ctx.createBiquadFilter();
+          filter.type = 'lowpass'; filter.frequency.value = 900;
+          oscA.type = 'sine';     oscA.frequency.value = 261.63;
+          oscB.type = 'triangle'; oscB.frequency.value = 392.00;
+          tremolo.frequency.value = 0.35; tremoloGain.gain.value = 0.05;
+          tremolo.connect(tremoloGain);
+          tremoloGain.connect(masterGain.gain);
+          oscA.connect(filter); oscB.connect(filter);
+          filter.connect(masterGain);
+          oscA.start(); oscB.start(); tremolo.start();
+        }
+        ctx.resume();
+        const now = ctx.currentTime;
+        masterGain.gain.cancelScheduledValues(now);
+        masterGain.gain.linearRampToValueAtTime(0.048, now + 1.3);
+        playing = true;
+        musicToggle.setAttribute('aria-label', 'Mute music');
+        musicToggle.innerHTML = '<span aria-hidden="true">🔊</span>';
+      }
+
+      function stopMusic() {
+        const now = ctx.currentTime;
+        masterGain.gain.cancelScheduledValues(now);
+        masterGain.gain.linearRampToValueAtTime(0, now + 0.8);
+        playing = false;
+        musicToggle.setAttribute('aria-label', 'Play romantic background music');
+        musicToggle.innerHTML = '<span aria-hidden="true">♫</span>';
+      }
+
+      musicToggle.addEventListener('click', async () => {
+        if (ctx.state === 'suspended') await ctx.resume();
+        playing ? stopMusic() : startMusic();
+      });
+    }
+
+    /* ── Event listeners ── */
+    yesBtn.addEventListener('click', celebrate);
+
+    noBtn.addEventListener('mouseenter', () => moveNoButton(false));
+    noBtn.addEventListener('focus',      () => moveNoButton(false));
+    noBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (!isMobile()) moveNoButton(false); /* touch on desktop: dodge */
+    }, { passive: false });
+
+    window.addEventListener('resize', () => moveNoButton(true));
+
+    closeModalBtn.addEventListener('click', closeLoveModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeLoveModal(); });
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('open')) closeLoveModal();
+    });
+
+    /* ── Cursor trail (desktop) ── */
+    let cursorCooldown = 0;
+    window.addEventListener('pointermove', (e) => {
+      if (cursorCooldown) return;
+      cursorCooldown = 1;
+      createCursorHeart(e.clientX, e.clientY);
+      setTimeout(() => cursorCooldown = 0, 120);
+    });
+
+    /* ── Init ── */
+    typeQuestion();
+    keepMagicAlive();
+    setupTilt();
+    setupMusic();
+
+    /* Position No-button on the RIGHT side initially (desktop only) */
+    requestAnimationFrame(() => {
+      if (!isMobile()) {
+        const areaRect = actionArea.getBoundingClientRect();
+        const btnRect  = noBtn.getBoundingClientRect();
+        const startX   = Math.max(0, areaRect.width - btnRect.width);
+        noButtonPos    = { x: startX, y: 0 };
+        noBtn.style.transform = `translate(${startX}px, 0px)`;
+      }
+    });
+  </script>
+</body>
+</html>
